@@ -5,8 +5,26 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ToDoList"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800"
+        WindowStartupLocation="CenterScreen">
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+        <ListBox x:Name="tasksList" ItemsSource="{Binding Tasks}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel>
+                        <TextBlock Text="{Binding Task_body}" FontSize="16" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Content="Добавить" MinWidth="65" Margin="10" Command="{Binding AddCommand}"  />
+            <Button Content="Удалить" MinWidth="65" Margin="10" Command="{Binding DeleteCommand}"
+                    CommandParameter="{Binding ElementName=tasksList, Path=SelectedItem}"  />
+        </StackPanel>
     </Grid>
 </Window>
