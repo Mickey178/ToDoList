@@ -1,30 +1,30 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-
-namespace ToDoList
+﻿namespace ToDoList
 {
-    public class Task : INotifyPropertyChanged
+    public class Task : PropChanged
     {
-        private string task_body;
+        private string body;
+
+        private bool isDone;
+
         public int Id { get; set; }
-        public string Task_body
+
+        public string Body
         {
-            get { return task_body; }
+            get { return body; }
             set
             {
-                task_body = value;
+                body = value;
                 OnPropertyChanged();
             }
         }
-        public Task() { }
-        public Task(string task_body)
+        public bool IsDone
         {
-            Task_body = task_body;
-        }
-        public event PropertyChangedEventHandler PropertyChanged;
-        public void OnPropertyChanged([CallerMemberName] string prop = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
+            get { return isDone; }
+            set
+            {
+                isDone = value;
+                OnPropertyChanged();
+            }
         }
     }
 }

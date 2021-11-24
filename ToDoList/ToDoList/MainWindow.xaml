@@ -16,7 +16,9 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel>
-                        <TextBlock Text="{Binding Task_body}" FontSize="16" />
+                        <CheckBox IsChecked="{Binding IsDone}">
+                            <TextBlock Text="{Binding Body}" FontSize="16" />
+                        </CheckBox>
                     </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>

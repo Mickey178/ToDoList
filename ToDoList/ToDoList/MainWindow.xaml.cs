@@ -7,7 +7,7 @@ namespace ToDoList
         public MainWindow()
         {
             InitializeComponent();
-            this.DataContext = new ApplicationViewModel();
+            DataContext = new ApplicationViewModel();
         }
     }
 }

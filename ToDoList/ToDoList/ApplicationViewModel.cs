@@ -1,27 +1,15 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 
 namespace ToDoList
 {
-    public class ApplicationViewModel : INotifyPropertyChanged
+    public class ApplicationViewModel : PropChanged
     {
-        ApplicationContext db;
+        private readonly ApplicationContext db;
         public RelayCommand AddCommand { get; }
         public RelayCommand DeleteCommand { get; }
-        private ObservableCollection<Task> _Tasks = new ObservableCollection<Task>();
-        public ObservableCollection<Task> Tasks
-        {
-            get
-            {
-                return _Tasks;
-            }
-            set
-            {
-                _Tasks = value;
-                OnPropertyChanged();
-            }
-        }
+
+        public ObservableCollection<Task> Tasks { get; }
+
         public ApplicationViewModel()
         {
             db = new ApplicationContext();
@@ -35,10 +23,11 @@ namespace ToDoList
         }
         public void Add(object obj)
         {
+            var task = new Task();           
             var taskWindow = new TaskWindow();
+            taskWindow.DataContext = task;
             if (taskWindow.ShowDialog() == true)
             {
-                Task task = new Task(taskWindow.addTask.Text);
                 db.Tasks.Add(task);
                 db.SaveChanges();
                 Tasks.Add(task);
@@ -52,11 +41,6 @@ namespace ToDoList
             db.Tasks.Remove(task);
             db.SaveChanges();
             Tasks.Remove(task);
-        }
-        public event PropertyChangedEventHandler PropertyChanged;
-        public void OnPropertyChanged([CallerMemberName] string prop = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
         }
     }
 }

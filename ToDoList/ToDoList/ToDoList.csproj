@@ -76,6 +76,7 @@
     </ApplicationDefinition>
     <Compile Include="ApplicationContext.cs" />
     <Compile Include="ApplicationViewModel.cs" />
+    <Compile Include="PropChanged.cs" />
     <Compile Include="RelayCommand.cs" />
     <Compile Include="Task.cs" />
     <Compile Include="TaskWindow.xaml.cs">

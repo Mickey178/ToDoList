@@ -12,7 +12,7 @@
             <RowDefinition />
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
-        <TextBox x:Name="addTask" Text="{Binding Task_body}" />
+        <TextBox Text="{Binding Body}" />
         <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Grid.Row="1">
             <Button IsDefault="True" Click="AcceptClick" MinWidth="60" MaxHeight="40" Margin="5">OK</Button>
             <Button IsCancel="True" MinWidth="60" MaxHeight="40" Margin="5">Отмена</Button>

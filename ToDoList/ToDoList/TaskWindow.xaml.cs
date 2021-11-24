@@ -10,7 +10,7 @@ namespace ToDoList
         }
         private void AcceptClick(object sender, RoutedEventArgs e)
         {
-            this.DialogResult = true;
+            DialogResult = true;
         }
     }
 }
