@@ -17,6 +17,7 @@
                 OnPropertyChanged();
             }
         }
+
         public bool IsDone
         {
             get { return isDone; }

@@ -13,20 +13,31 @@
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
         <ListBox x:Name="tasksList" ItemsSource="{Binding Tasks}">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="HorizontalContentAlignment"
+                        Value="Stretch"/>
+                </Style>
+            </ListBox.ItemContainerStyle>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel>
-                        <CheckBox IsChecked="{Binding IsDone}">
-                            <TextBlock Text="{Binding Body}" FontSize="16" />
-                        </CheckBox>
-                    </StackPanel>
+                    <DockPanel>
+                        <CheckBox Margin="0 15 0 0" IsChecked="{Binding IsDone}" />
+                        <TextBlock Margin="10" Text="{Binding Body}" FontSize="16" />
+                        <DockPanel HorizontalAlignment="Right">
+                            <Button Content="Редактировать" MinWidth="100" Margin="10"
+                                    Command="{Binding ElementName=tasksList,Path=DataContext.EditCommand}"
+                                    CommandParameter="{Binding}" />
+                            <Button Content="Удалить" MinWidth="65" Margin="10" 
+                                    Command="{Binding ElementName=tasksList,Path=DataContext.DeleteCommand}"
+                                    CommandParameter="{Binding}" />
+                        </DockPanel>
+                    </DockPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button Content="Добавить" MinWidth="65" Margin="10" Command="{Binding AddCommand}"  />
-            <Button Content="Удалить" MinWidth="65" Margin="10" Command="{Binding DeleteCommand}"
-                    CommandParameter="{Binding ElementName=tasksList, Path=SelectedItem}"  />
+            <Button Content="+" FontSize="17" FontWeight="Bold" MinWidth="65" Margin="10" Command="{Binding AddCommand}" />
         </StackPanel>
     </Grid>
 </Window>
