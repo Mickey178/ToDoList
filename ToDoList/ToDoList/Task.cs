@@ -1,4 +1,6 @@
-﻿namespace ToDoList
+﻿using System;
+
+namespace ToDoList
 {
     public class Task : PropChanged
     {
@@ -6,7 +8,19 @@
 
         private bool isDone;
 
+        private string date = DateTime.Now.ToShortDateString();
+
         public int Id { get; set; }
+
+        public string Date
+        {
+            get { return date; }
+            set
+            {
+                date = value;
+                OnPropertyChanged();
+            }
+        }
 
         public string Body
         {

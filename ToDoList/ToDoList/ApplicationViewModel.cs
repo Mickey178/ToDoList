@@ -1,6 +1,9 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data.Entity;
+using System.Linq;
+using System.Windows;
 
 namespace ToDoList
 {
@@ -14,13 +17,18 @@ namespace ToDoList
 
         public RelayCommand EditCommand { get; }
 
+        public RelayCommand PreviousDateCommand { get; }
+
+        public RelayCommand NextDateCommand { get; }
+
         public ObservableCollection<Task> Tasks { get; }
 
         public ApplicationViewModel()
         {
+            var dt = DateTime.Now.ToShortDateString();
             db = new ApplicationContext();
             Tasks = new ObservableCollection<Task>();
-            foreach (var task in db.Tasks)
+            foreach (var task in db.Tasks.Where(i => i.Date == dt))
             {
                 Tasks.Add(task);
                 task.PropertyChanged += OnTaskPropertyChange;
@@ -28,6 +36,8 @@ namespace ToDoList
             AddCommand = new RelayCommand(Add);
             DeleteCommand = new RelayCommand(Delete);
             EditCommand = new RelayCommand(Edit);
+            PreviousDateCommand = new RelayCommand(PreviousDate);
+            NextDateCommand = new RelayCommand(NextDate);
         }
         public void Add(object obj)
         {
@@ -56,9 +66,47 @@ namespace ToDoList
         public void Edit(object obj)
         {
             var task = obj as Task;
-            var taskWindow = new TaskWindow();
-            taskWindow.DataContext = task;
-            taskWindow.ShowDialog();
+            var taskChangeWindow = new TaskChangeWindow();
+            taskChangeWindow.DataContext = task;
+            taskChangeWindow.ShowDialog();
+        }
+
+        public void PreviousDate(object obj)
+        {
+            var taskDate = new Task();
+            taskDate = Tasks.FirstOrDefault();
+            if (taskDate == null)
+            {
+                Application.Current.Shutdown();
+                return;
+            }
+            DateTime dateTimeOld = DateTime.Parse(taskDate.Date);
+            var dateTimeNew = dateTimeOld.AddDays(-1).ToShortDateString();
+            Tasks.Clear();
+            foreach (var task in db.Tasks.Where(i => i.Date == dateTimeNew))
+            {
+                Tasks.Add(task);
+                task.PropertyChanged += OnTaskPropertyChange;
+            }
+        }
+
+        public void NextDate(object obj)
+        {
+            var taskDate = new Task();
+            taskDate = Tasks.FirstOrDefault();
+            if (taskDate == null)
+            {
+                Application.Current.Shutdown();
+                return;
+            }
+            DateTime dateTimeOld = DateTime.Parse(taskDate.Date);
+            var dateTimeNew = dateTimeOld.AddDays(+1).ToShortDateString();
+            Tasks.Clear();
+            foreach (var task in db.Tasks.Where(i => i.Date == dateTimeNew))
+            {
+                Tasks.Add(task);
+                task.PropertyChanged += OnTaskPropertyChange;
+            }
         }
 
         public void OnTaskPropertyChange(object sender, PropertyChangedEventArgs e)

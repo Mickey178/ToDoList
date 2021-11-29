@@ -9,10 +9,24 @@
         WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
             <RowDefinition />
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
-        <ListBox x:Name="tasksList" ItemsSource="{Binding Tasks}">
+        <Grid>
+            <Button Command="{Binding PreviousDateCommand}" FontFamily="Marlett" FontSize="20" Content="3" HorizontalAlignment="Left" Width="40" />
+            <Button Command="{Binding NextDateCommand}" FontFamily="Marlett" FontSize="25" Content="8" HorizontalAlignment="Right" Width="40" />
+        </Grid>
+        <ListBox ScrollViewer.VerticalScrollBarVisibility="Disabled" Width="80" ItemsSource="{Binding Tasks}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <DockPanel>
+                        <TextBlock HorizontalAlignment="Center" Width="65" Text="{Binding Date}" />
+                    </DockPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <ListBox Grid.Row="1" x:Name="tasksList" ItemsSource="{Binding Tasks}">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
                     <Setter Property="HorizontalContentAlignment"
@@ -22,8 +36,8 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <DockPanel>
-                        <CheckBox Margin="0 15 0 0" IsChecked="{Binding IsDone}" />
-                        <TextBlock Margin="10" Text="{Binding Body}" FontSize="16" />
+                        <CheckBox MinWidth="30" IsChecked="{Binding IsDone}" />
+                        <TextBlock Text="{Binding Body}" FontSize="16" />
                         <DockPanel HorizontalAlignment="Right">
                             <Button Content="Редактировать" MinWidth="100" Margin="10"
                                     Command="{Binding ElementName=tasksList,Path=DataContext.EditCommand}"
@@ -36,7 +50,7 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+        <StackPanel Grid.Row="2" HorizontalAlignment="Center">
             <Button Content="+" FontSize="17" FontWeight="Bold" MinWidth="65" Margin="10" Command="{Binding AddCommand}" />
         </StackPanel>
     </Grid>

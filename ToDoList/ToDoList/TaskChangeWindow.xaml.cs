@@ -2,14 +2,14 @@
 
 namespace ToDoList
 {
-    public partial class TaskWindow : Window
+    public partial class TaskChangeWindow : Window
     {
-        public TaskWindow()
+        public TaskChangeWindow()
         {
             InitializeComponent();
         }
 
-        private void AcceptClick(object sender, RoutedEventArgs e)
+        private void AcceptChangeClick(object sender, RoutedEventArgs e)
         {
             DialogResult = true;
         }
