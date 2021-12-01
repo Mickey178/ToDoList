@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ToDoList"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         WindowStartupLocation="CenterScreen">
@@ -14,14 +13,14 @@
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
         <Grid>
-            <Button Command="{Binding PreviousDateCommand}" FontFamily="Marlett" FontSize="20" Content="3" HorizontalAlignment="Left" Width="40" />
-            <Button Command="{Binding NextDateCommand}" FontFamily="Marlett" FontSize="25" Content="8" HorizontalAlignment="Right" Width="40" />
+            <Button Command="{Binding UpdateTasksCommand}" FontFamily="Marlett" FontSize="20" Content="3" HorizontalAlignment="Left" Width="40" />
+            <Button Command="{Binding UpdateTasksCommand}" CommandParameter="{Binding}" FontFamily="Marlett" FontSize="25" Content="8" HorizontalAlignment="Right" Width="40" />
         </Grid>
-        <ListBox ScrollViewer.VerticalScrollBarVisibility="Disabled" Width="80" ItemsSource="{Binding Tasks}">
+        <ListBox ScrollViewer.VerticalScrollBarVisibility="Disabled" Width="75" ItemsSource="{Binding Tasks}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <DockPanel>
-                        <TextBlock HorizontalAlignment="Center" Width="65" Text="{Binding Date}" />
+                        <TextBlock HorizontalAlignment="Center" Width="60" Text="{Binding Date}" />
                     </DockPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
@@ -45,6 +44,12 @@
                             <Button Content="Удалить" MinWidth="65" Margin="10" 
                                     Command="{Binding ElementName=tasksList,Path=DataContext.DeleteCommand}"
                                     CommandParameter="{Binding}" />
+                            <Button Margin="20 0 0 0" Height="20" FontFamily="Segoe UI Symbol" Content="&#xE1FD;"
+                                    Command="{Binding ElementName=tasksList,Path=DataContext.SwapTaskCommand}"
+                                    CommandParameter="{Binding}" />
+                            <Button Margin="5" Height="20" FontFamily="Segoe UI Symbol" Content="&#xE110;"
+                                    Command="{Binding ElementName=tasksList,Path=DataContext.SwapTaskTopCommand}"
+                                    CommandParameter="{Binding}"/>
                         </DockPanel>
                     </DockPanel>
                 </DataTemplate>

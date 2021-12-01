@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data.Entity;
 using System.Linq;
-using System.Windows;
 
 namespace ToDoList
 {
@@ -21,11 +20,17 @@ namespace ToDoList
 
         public RelayCommand NextDateCommand { get; }
 
+        public RelayCommand UpdateTasksCommand { get; }
+
+        public RelayCommand SwapTaskCommand { get; }
+
+        public RelayCommand SwapTaskTopCommand { get; }
+
         public ObservableCollection<Task> Tasks { get; }
 
         public ApplicationViewModel()
         {
-            var dt = DateTime.Now.ToShortDateString();
+            var dt = DateTime.Now.Date;
             db = new ApplicationContext();
             Tasks = new ObservableCollection<Task>();
             foreach (var task in db.Tasks.Where(i => i.Date == dt))
@@ -36,8 +41,9 @@ namespace ToDoList
             AddCommand = new RelayCommand(Add);
             DeleteCommand = new RelayCommand(Delete);
             EditCommand = new RelayCommand(Edit);
-            PreviousDateCommand = new RelayCommand(PreviousDate);
-            NextDateCommand = new RelayCommand(NextDate);
+            UpdateTasksCommand = new RelayCommand(UpdateTasksAccordingToDate);
+            SwapTaskCommand = new RelayCommand(SwapTaskDown);
+            SwapTaskTopCommand = new RelayCommand(SwapTaskTop);
         }
         public void Add(object obj)
         {
@@ -70,43 +76,62 @@ namespace ToDoList
             taskChangeWindow.DataContext = task;
             taskChangeWindow.ShowDialog();
         }
-
-        public void PreviousDate(object obj)
+        public void UpdateTasksAccordingToDate(object obj)
         {
+            var buttonState = 0;
+            if (obj == null)
+                buttonState = -1;
+            else
+                buttonState = 1;
+
             var taskDate = new Task();
             taskDate = Tasks.FirstOrDefault();
-            if (taskDate == null)
+
+            foreach (var task in db.Tasks.Where(i => i.Date == taskDate.Date))
             {
-                Application.Current.Shutdown();
-                return;
+                task.PropertyChanged -= OnTaskPropertyChange;
             }
-            DateTime dateTimeOld = DateTime.Parse(taskDate.Date);
-            var dateTimeNew = dateTimeOld.AddDays(-1).ToShortDateString();
             Tasks.Clear();
-            foreach (var task in db.Tasks.Where(i => i.Date == dateTimeNew))
+
+            var dateTimeNewPage = taskDate.Date.AddDays(buttonState);
+            foreach (var task in db.Tasks.Where(i => i.Date == dateTimeNewPage))
             {
                 Tasks.Add(task);
                 task.PropertyChanged += OnTaskPropertyChange;
+            }
+
+            var varificationDateTime = dateTimeNewPage.Date.AddDays(buttonState);
+            var checkingFutureTask = db.Tasks.Where(i => i.Date == varificationDateTime).Count();
+            if (checkingFutureTask == 0)
+            {
+                Task emptyTask = new Task { Date = varificationDateTime };
+                db.Tasks.Add(emptyTask);
+                db.SaveChanges();
             }
         }
 
-        public void NextDate(object obj)
+        public void SwapTaskDown(object obj)
         {
-            var taskDate = new Task();
-            taskDate = Tasks.FirstOrDefault();
-            if (taskDate == null)
-            {
-                Application.Current.Shutdown();
-                return;
-            }
-            DateTime dateTimeOld = DateTime.Parse(taskDate.Date);
-            var dateTimeNew = dateTimeOld.AddDays(+1).ToShortDateString();
-            Tasks.Clear();
-            foreach (var task in db.Tasks.Where(i => i.Date == dateTimeNew))
-            {
-                Tasks.Add(task);
-                task.PropertyChanged += OnTaskPropertyChange;
-            }
+            var indexObj = Tasks.IndexOf(obj as Task);
+            Task selectedTask = Tasks[indexObj];
+            Task bottomTask = Tasks[indexObj + 1];
+            Task phantomTask = new Task { Body = selectedTask.Body, IsDone = selectedTask.IsDone };
+            selectedTask.Body = bottomTask.Body;
+            selectedTask.IsDone = bottomTask.IsDone;
+            bottomTask.Body = phantomTask.Body;
+            bottomTask.IsDone = phantomTask.IsDone;
+        }
+
+        public void SwapTaskTop(object obj)
+        {
+            var indexObj = Tasks.IndexOf(obj as Task);
+            Task selectedTask = Tasks[indexObj];
+            Task bottomTask = Tasks[indexObj - 1];
+            Task phantomTask = new Task { Body = selectedTask.Body, IsDone = selectedTask.IsDone };
+            selectedTask.Body = bottomTask.Body;
+            selectedTask.IsDone = bottomTask.IsDone;
+            bottomTask.Body = phantomTask.Body;
+            bottomTask.IsDone = phantomTask.IsDone;
         }
 
         public void OnTaskPropertyChange(object sender, PropertyChangedEventArgs e)

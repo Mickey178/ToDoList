@@ -8,11 +8,11 @@ namespace ToDoList
 
         private bool isDone;
 
-        private string date = DateTime.Now.ToShortDateString();
+        private DateTime date = DateTime.Now.Date;
 
         public int Id { get; set; }
 
-        public string Date
+        public DateTime Date
         {
             get { return date; }
             set
