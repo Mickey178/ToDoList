@@ -80,9 +80,10 @@ namespace ToDoList
                 return;
             Task task = obj as Task;
             db.Tasks.Remove(task);
-            for (int i = 0; i < Tasks.Count() - Tasks.IndexOf(task); i++)
+            var index = Tasks.IndexOf(task);
+            for (int i = index + 1; i < Tasks.Count; i++)
             {
-                Tasks[Tasks.Count() - i - 1].OrderBy = Tasks[Tasks.Count() - i - 1].OrderBy - 1;
+                Tasks[i].OrderBy = Tasks[i].OrderBy - 1;
             }
             db.SaveChanges();
             Tasks.Remove(task);
@@ -122,27 +123,22 @@ namespace ToDoList
             UpdateTasks();
         }
 
-        private void SaveChangeInDataBase(object obj)
+        private void ChangePriority(int a, object obj)
         {
-            using (ApplicationContext db = new ApplicationContext())
-            {
-                db.Entry(obj).State = EntityState.Modified;
-                db.SaveChanges();
-            }
+            var indexObj = Tasks.IndexOf(obj as Task);
+            var selectedPriority = Tasks[indexObj].OrderBy;
+            var bottomPriority = Tasks[indexObj + a].OrderBy;
+            var phantomPriority = selectedPriority;
+            Tasks[indexObj].OrderBy = bottomPriority;
+            Tasks[indexObj + a].OrderBy = phantomPriority;
+            UpdateTasks();
         }
 
         private void MoveDown(object obj)
         {
             var indexObj = Tasks.IndexOf(obj as Task);
             if (indexObj + 1 < Tasks.Count())
-            {
-                var selectedPriority = Tasks[indexObj].OrderBy;
-                var bottomPriority = Tasks[indexObj + 1].OrderBy;
-                var phantomPriority = selectedPriority;
-                Tasks[indexObj].OrderBy = bottomPriority;
-                Tasks[indexObj + 1].OrderBy = phantomPriority;
-                UpdateTasks();
-            }
+                ChangePriority(+1 , obj);
             else
                 return;
         }
@@ -151,16 +147,18 @@ namespace ToDoList
         {
             var indexObj = Tasks.IndexOf(obj as Task);
             if (indexObj > 0)
-            {
-                var selectedPriority = Tasks[indexObj].OrderBy;
-                var bottomPriority = Tasks[indexObj - 1].OrderBy;
-                var phantomPriority = selectedPriority;
-                Tasks[indexObj].OrderBy = bottomPriority;
-                Tasks[indexObj - 1].OrderBy = phantomPriority;
-                UpdateTasks();
-            }
+                ChangePriority(-1 , obj);
             else
                 return;
+        }
+
+        private void SaveChangeInDataBase(object obj)
+        {
+            using (ApplicationContext db = new ApplicationContext())
+            {
+                db.Entry(obj).State = EntityState.Modified;
+                db.SaveChanges();
+            }
         }
 
         private void OnTaskPropertyChange(object sender, PropertyChangedEventArgs e)
