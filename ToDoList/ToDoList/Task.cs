@@ -12,6 +12,18 @@ namespace ToDoList
 
         public int Id { get; set; }
 
+        private int orderBy;
+
+        public int OrderBy
+        {
+            get { return orderBy; }
+            set
+            {
+                orderBy = value;
+                OnPropertyChanged();
+            }
+        }
+
         public DateTime Date
         {
             get { return date; }

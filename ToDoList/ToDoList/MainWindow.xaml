@@ -13,18 +13,10 @@
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
         <Grid>
-            <Button Command="{Binding UpdateTasksCommand}" FontFamily="Marlett" FontSize="20" Content="3" HorizontalAlignment="Left" Width="40" />
-            <Button Command="{Binding UpdateTasksCommand}" CommandParameter="{Binding}" FontFamily="Marlett" FontSize="25" Content="8" HorizontalAlignment="Right" Width="40" />
+            <Button Command="{Binding PreviousDateCommand}" FontFamily="Marlett" FontSize="20" Content="3" HorizontalAlignment="Left" Width="40" />
+            <Button Command="{Binding NextDateCommand}" FontFamily="Marlett" FontSize="25" Content="8" HorizontalAlignment="Right" Width="40" />
         </Grid>
-        <ListBox ScrollViewer.VerticalScrollBarVisibility="Disabled" Width="75" ItemsSource="{Binding Tasks}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <DockPanel>
-                        <TextBlock HorizontalAlignment="Center" Width="60" Text="{Binding Date}" />
-                    </DockPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <TextBlock HorizontalAlignment="Center" Width="59" Text="{Binding CurrentDate}" />
         <ListBox Grid.Row="1" x:Name="tasksList" ItemsSource="{Binding Tasks}">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
@@ -45,10 +37,10 @@
                                     Command="{Binding ElementName=tasksList,Path=DataContext.DeleteCommand}"
                                     CommandParameter="{Binding}" />
                             <Button Margin="20 0 0 0" Height="20" FontFamily="Segoe UI Symbol" Content="&#xE1FD;"
-                                    Command="{Binding ElementName=tasksList,Path=DataContext.SwapTaskCommand}"
+                                    Command="{Binding ElementName=tasksList,Path=DataContext.MoveDownCommand}"
                                     CommandParameter="{Binding}" />
                             <Button Margin="5" Height="20" FontFamily="Segoe UI Symbol" Content="&#xE110;"
-                                    Command="{Binding ElementName=tasksList,Path=DataContext.SwapTaskTopCommand}"
+                                    Command="{Binding ElementName=tasksList,Path=DataContext.MoveTopCommand}"
                                     CommandParameter="{Binding}"/>
                         </DockPanel>
                     </DockPanel>

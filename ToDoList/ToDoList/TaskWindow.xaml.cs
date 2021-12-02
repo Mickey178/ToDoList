@@ -13,5 +13,10 @@ namespace ToDoList
         {
             DialogResult = true;
         }
+
+        private void CancelClick(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
+        }
     }
 }

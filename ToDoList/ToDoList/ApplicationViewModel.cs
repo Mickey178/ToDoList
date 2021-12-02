@@ -20,34 +20,48 @@ namespace ToDoList
 
         public RelayCommand NextDateCommand { get; }
 
-        public RelayCommand UpdateTasksCommand { get; }
+        public RelayCommand MoveDownCommand { get; }
 
-        public RelayCommand SwapTaskCommand { get; }
-
-        public RelayCommand SwapTaskTopCommand { get; }
+        public RelayCommand MoveTopCommand { get; }
 
         public ObservableCollection<Task> Tasks { get; }
 
+        public DateTime CurrentDate { get; private set; }
+
         public ApplicationViewModel()
         {
-            var dt = DateTime.Now.Date;
+            CurrentDate = DateTime.Now.Date;
             db = new ApplicationContext();
             Tasks = new ObservableCollection<Task>();
-            foreach (var task in db.Tasks.Where(i => i.Date == dt))
+            UpdateTasks();
+            AddCommand = new RelayCommand(Add);
+            DeleteCommand = new RelayCommand(Delete);
+            EditCommand = new RelayCommand(Edit);
+            PreviousDateCommand = new RelayCommand(PreviousDate);
+            NextDateCommand = new RelayCommand(NextDate);
+            MoveDownCommand = new RelayCommand(MoveDown);
+            MoveTopCommand = new RelayCommand(MoveTop);
+        }
+
+        private void UpdateTasks()
+        {
+            foreach (var task in Tasks)
+            {
+                task.PropertyChanged -= OnTaskPropertyChange;
+            }
+            Tasks.Clear();
+
+            foreach (var task in db.Tasks.Where(i => i.Date == CurrentDate).OrderBy(y => y.OrderBy))
             {
                 Tasks.Add(task);
                 task.PropertyChanged += OnTaskPropertyChange;
             }
-            AddCommand = new RelayCommand(Add);
-            DeleteCommand = new RelayCommand(Delete);
-            EditCommand = new RelayCommand(Edit);
-            UpdateTasksCommand = new RelayCommand(UpdateTasksAccordingToDate);
-            SwapTaskCommand = new RelayCommand(SwapTaskDown);
-            SwapTaskTopCommand = new RelayCommand(SwapTaskTop);
         }
-        public void Add(object obj)
+        private void Add(object obj)
         {
-            var task = new Task();           
+            var task = new Task();
+            var countTasks = Tasks.Count();
+            task.OrderBy = countTasks + 1;
             var taskWindow = new TaskWindow();
             taskWindow.DataContext = task;
             if (taskWindow.ShowDialog() == true)
@@ -58,89 +72,98 @@ namespace ToDoList
                 task.PropertyChanged += OnTaskPropertyChange;
             }
         }
-        public void Delete(object obj)
+        private void Delete(object obj)
         {
             if (obj == null)
                 return;
             Task task = obj as Task;
             db.Tasks.Remove(task);
+            for (int i = 0; i < Tasks.Count() - Tasks.IndexOf(task); i++)
+            {
+                Tasks[Tasks.Count() - i - 1].OrderBy = Tasks[Tasks.Count() - i - 1].OrderBy - 1;
+            }
             db.SaveChanges();
             Tasks.Remove(task);
             task.PropertyChanged -= OnTaskPropertyChange;
         }
 
-        public void Edit(object obj)
+        private void Edit(object obj)
         {
             var task = obj as Task;
-            var taskChangeWindow = new TaskChangeWindow();
-            taskChangeWindow.DataContext = task;
-            taskChangeWindow.ShowDialog();
-        }
-        public void UpdateTasksAccordingToDate(object obj)
-        {
-            var buttonState = 0;
-            if (obj == null)
-                buttonState = -1;
-            else
-                buttonState = 1;
-
-            var taskDate = new Task();
-            taskDate = Tasks.FirstOrDefault();
-
-            foreach (var task in db.Tasks.Where(i => i.Date == taskDate.Date))
+            task.PropertyChanged -= OnTaskPropertyChange;
+            var taskWindow = new TaskWindow();
+            taskWindow.DataContext = task;
+            var oldBody = task.Body;
+            if(taskWindow.ShowDialog() == true)
             {
-                task.PropertyChanged -= OnTaskPropertyChange;
-            }
-            Tasks.Clear();
-
-            var dateTimeNewPage = taskDate.Date.AddDays(buttonState);
-            foreach (var task in db.Tasks.Where(i => i.Date == dateTimeNewPage))
-            {
-                Tasks.Add(task);
+                SaveChangeInDataBase(task);
                 task.PropertyChanged += OnTaskPropertyChange;
             }
-
-            var varificationDateTime = dateTimeNewPage.Date.AddDays(buttonState);
-            var checkingFutureTask = db.Tasks.Where(i => i.Date == varificationDateTime).Count();
-            if (checkingFutureTask == 0)
+            else
             {
-                Task emptyTask = new Task { Date = varificationDateTime };
-                db.Tasks.Add(emptyTask);
-                db.SaveChanges();
+                task.Body = oldBody;
+                task.PropertyChanged += OnTaskPropertyChange;
             }
         }
 
-        public void SwapTaskDown(object obj)
+        private void PreviousDate(object obj)
         {
-            var indexObj = Tasks.IndexOf(obj as Task);
-            Task selectedTask = Tasks[indexObj];
-            Task bottomTask = Tasks[indexObj + 1];
-            Task phantomTask = new Task { Body = selectedTask.Body, IsDone = selectedTask.IsDone };
-            selectedTask.Body = bottomTask.Body;
-            selectedTask.IsDone = bottomTask.IsDone;
-            bottomTask.Body = phantomTask.Body;
-            bottomTask.IsDone = phantomTask.IsDone;
+            CurrentDate = CurrentDate.AddDays(-1);
+            OnPropertyChanged(nameof(CurrentDate));
+            UpdateTasks();
         }
 
-        public void SwapTaskTop(object obj)
+        private void NextDate(object obj)
         {
-            var indexObj = Tasks.IndexOf(obj as Task);
-            Task selectedTask = Tasks[indexObj];
-            Task bottomTask = Tasks[indexObj - 1];
-            Task phantomTask = new Task { Body = selectedTask.Body, IsDone = selectedTask.IsDone };
-            selectedTask.Body = bottomTask.Body;
-            selectedTask.IsDone = bottomTask.IsDone;
-            bottomTask.Body = phantomTask.Body;
-            bottomTask.IsDone = phantomTask.IsDone;
+            CurrentDate = CurrentDate.AddDays(1);
+            OnPropertyChanged(nameof(CurrentDate));
+            UpdateTasks();
         }
 
-        public void OnTaskPropertyChange(object sender, PropertyChangedEventArgs e)
+        private void SaveChangeInDataBase(object obj)
         {
             using (ApplicationContext db = new ApplicationContext())
             {
-                db.Entry(sender).State = EntityState.Modified;
+                db.Entry(obj).State = EntityState.Modified;
                 db.SaveChanges();
             }
+        }
+
+        private void MoveDown(object obj)
+        {
+            var indexObj = Tasks.IndexOf(obj as Task);
+            if (indexObj + 1 < Tasks.Count())
+            {
+                var selectedPriority = Tasks[indexObj].OrderBy;
+                var bottomPriority = Tasks[indexObj + 1].OrderBy;
+                var phantomPriority = selectedPriority;
+                Tasks[indexObj].OrderBy = bottomPriority;
+                Tasks[indexObj + 1].OrderBy = phantomPriority;
+                UpdateTasks();
+            }
+            else
+                return;
+        }
+
+        private void MoveTop(object obj)
+        {
+            var indexObj = Tasks.IndexOf(obj as Task);
+            if (indexObj > 0)
+            {
+                var selectedPriority = Tasks[indexObj].OrderBy;
+                var bottomPriority = Tasks[indexObj - 1].OrderBy;
+                var phantomPriority = selectedPriority;
+                Tasks[indexObj].OrderBy = bottomPriority;
+                Tasks[indexObj - 1].OrderBy = phantomPriority;
+                UpdateTasks();
+            }
+            else
+                return;
+        }
+
+        private void OnTaskPropertyChange(object sender, PropertyChangedEventArgs e)
+        {
+            SaveChangeInDataBase(sender);
         }
     }
 }
