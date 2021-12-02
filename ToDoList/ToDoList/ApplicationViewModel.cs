@@ -57,6 +57,7 @@ namespace ToDoList
                 task.PropertyChanged += OnTaskPropertyChange;
             }
         }
+
         private void Add(object obj)
         {
             var task = new Task();
@@ -72,6 +73,7 @@ namespace ToDoList
                 task.PropertyChanged += OnTaskPropertyChange;
             }
         }
+
         private void Delete(object obj)
         {
             if (obj == null)
