@@ -123,14 +123,13 @@ namespace ToDoList
             UpdateTasks();
         }
 
-        private void ChangePriority(int a, object obj)
+        private void SwapPriority(int index1, int index2)
         {
-            var indexObj = Tasks.IndexOf(obj as Task);
-            var selectedPriority = Tasks[indexObj].OrderBy;
-            var bottomPriority = Tasks[indexObj + a].OrderBy;
+            var selectedPriority = Tasks[index1].OrderBy;
+            var bottomPriority = Tasks[index2].OrderBy;
             var phantomPriority = selectedPriority;
-            Tasks[indexObj].OrderBy = bottomPriority;
-            Tasks[indexObj + a].OrderBy = phantomPriority;
+            Tasks[index1].OrderBy = bottomPriority;
+            Tasks[index2].OrderBy = phantomPriority;
             UpdateTasks();
         }
 
@@ -138,7 +137,7 @@ namespace ToDoList
         {
             var indexObj = Tasks.IndexOf(obj as Task);
             if (indexObj + 1 < Tasks.Count())
-                ChangePriority(+1 , obj);
+                SwapPriority(indexObj, indexObj + 1);
             else
                 return;
         }
@@ -147,7 +146,7 @@ namespace ToDoList
         {
             var indexObj = Tasks.IndexOf(obj as Task);
             if (indexObj > 0)
-                ChangePriority(-1 , obj);
+                SwapPriority(indexObj, indexObj -1);
             else
                 return;
         }
